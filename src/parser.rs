@@ -28,27 +28,43 @@ pub struct Song {
     pub song: HashMap<String, HashMap<String, Vec<String>>>,
 }
 
+pub enum ChromaticScale {
+    Ab,
+    A,
+    Bb,
+    B,
+    C,
+    Db,
+    D,
+    Eb,
+    E,
+    F,
+    Gb,
+    G,
+}
+
 impl Song {
 
     pub fn parse_song_file(&mut self, file_contents: String) {
 	let mut neck: Vec<String> = vec![];
 	let mut current_song_part = String::new();
 	for line in file_contents.split_terminator('\n') {
-	    if line == " " {
-		if neck.len() > 0 {
-		    println!("associating");
-		    self.associate_song_notes(&mut neck, current_song_part.to_string().to_owned());
-		    neck = vec![];
-		}
-	    }
 	    if line.contains('[') {
 		current_song_part = line.to_string().replace(&[']', '['],"").to_owned();
 		self.song_structure.push(current_song_part.to_owned());
 		self.song.insert(current_song_part.to_owned(), HashMap::new());
 	    }
-	    if line.contains('|') {
+	    else if line.contains('|') {
+		println!("hit thing");
 		self.append_song_tuning(line[0..2].to_string().replace(&['|', ' '],"").to_owned());
 		neck.push(line.to_string().to_owned());
+	    }
+	    else {
+		if neck.len() > 0 {
+		    println!("associating");
+		    self.associate_song_notes(&mut neck, current_song_part.to_string().to_owned());
+		    neck = vec![];
+		}
 	    }
 	}
     }
@@ -85,7 +101,9 @@ impl Song {
 			// we will seperate these into bars evenutally
 			note_array.push(string.chars().nth(tick).unwrap().to_string());
 		    },
-		    _ => {println!("NA")},
+		    Some('/') => {note_array.push("-".to_string());}, // everything else right now just add a blank spot
+		    Some('\\') => {note_array.push("-".to_string());}, // everything else right now just add a blank spot
+		    _ => {}, // everything else right now do nothing
 		};
 	    }
 	    if self.song.contains_key(&song_section) {
@@ -103,6 +121,11 @@ impl Song {
 	println!("BPM: {:?}", self.bpm);
 	println!("Song Structure: {:?}", self.song_structure);
 	println!("Song: {:?}", self.song);
+    }
+
+    pub fn get_note_from_key(&self, key: &u32, string: &String) -> String {
+	// given a note and a string, iterate on the chromaticscale until you find the note and return it
+	"".to_string()
     }
     
 }

@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "tab-scraper"
+name = "tabscraper"
 version = "0.1.0"
